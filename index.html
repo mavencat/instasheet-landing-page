@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instasheet - Your Excel model's new collaborator</title>
+    <meta name="description" content="Instasheet - Your Excel model's new collaborator">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Instasheet - Your Excel model's new collaborator">
+    <meta property="og:description" content="Search million cell financial models instantly. Turn hours-long processes into a single command. Your models, evolving at thought speed.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-text-primary: #f0f0f0;
+            --color-text-secondary: rgba(255, 255, 255, 0.56);
+            --color-text-tertiary: #999999;
+            --color-button-bg: #f0f0f0;
+            --color-button-text: #0a0a0a;
+            --color-input-bg: rgba(10, 10, 10, 0.56);
+            --color-input-border: rgba(255, 255, 255, 0.1);
+
+            --font-primary: 'Inter', sans-serif;
+            --font-serif: 'Instrument Serif', serif;
+        }
+
+        /* 1. Base & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 50% 35%, #1a3838 0%, var(--color-bg) 65%);
+            color: var(--color-text-primary);
+            font-family: var(--font-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* 2. Layout & Background */
+        .hero-section {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 2rem;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .background-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* 2.2.1: Register a custom property for smooth color animation */
+        @property --glow-color {
+          syntax: '<color>';
+          inherits: false;
+          initial-value: #43A294;
+        }
+
+        /* 2.2.2: Define animation keyframes */
+        @keyframes pulse-opacity {
+            0%, 100% {
+                opacity: 0.1; /* Makes the glow significantly dimmer at its lowest point */
+            }
+            30% { /* Reaches peak brightness faster, creating a longer fade-out */
+                opacity: 1;
+            }
+        }
+
+        @keyframes wander-transform {
+            0%, 100% {
+                transform: translateX(calc(-50% - 5vw));
+            }
+            50% {
+                transform: translateX(calc(-50% + 5vw));
+            }
+        }
+
+        @keyframes colorShift {
+            0% {
+                --glow-color: #43A294; /* Teal/Green */
+            }
+            33% {
+                --glow-color: #32C7C7; /* Cyan */
+            }
+            66% {
+                --glow-color: #5B86E5; /* Soft Blue */
+            }
+            100% {
+                --glow-color: #43A294; /* Loop back to start */
+            }
+        }
+
+        .planet-glow {
+            position: absolute;
+            bottom: 22vh;
+            left: 50%;
+            width: 110vw;
+            height: 180px;
+            background: radial-gradient(ellipse at center, var(--glow-color) 0%, transparent 70%);
+            filter: blur(90px);
+            opacity: 0.8;
+            animation: 
+                pulse-opacity 18s ease-in-out infinite, /* Changed 10s to 18s */
+                wander-transform 25s ease-in-out infinite,
+                colorShift 35s linear infinite;
+        }
+        
+        .planet-body {
+            position: absolute;
+            bottom: -66vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200vw;
+            height: 100vh;
+            background-color: var(--color-bg);
+            border-radius: 50%;
+        }
+
+        .planet-horizon {
+            position: absolute;
+            bottom: -66vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200vw;
+            height: 100vh;
+            background: transparent;
+            border-radius: 50%;
+            box-shadow: inset 0 4px 25px rgba(255, 255, 255, 0.8);
+        }
+
+        .top-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(180deg, #0a0a0a, rgba(10,10,10,0));
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            max-width: 520px;
+            z-index: 1;
+        }
+
+        /* 3. Components */
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            background-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: -0.03em;
+        }
+        
+        .excel-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 8px;
+        }
+
+        .main-heading {
+            font-family: var(--font-primary);
+            font-size: 60px;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            color: var(--color-text-primary);
+        }
+
+        .main-heading em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--color-text-secondary);
+            max-width: 302px;
+            line-height: 1.5;
+            letter-spacing: -0.04em;
+        }
+        
+        .waitlist-form {
+            position: relative;
+            width: 100%;
+            max-width: 395px;
+            margin-top: 12px;
+        }
+
+        .waitlist-form input {
+            width: 100%;
+            padding: 16px 136px 16px 16px;
+            background-color: var(--color-input-bg);
+            border: 1px solid var(--color-input-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-family: var(--font-primary);
+            font-size: 14px;
+            letter-spacing: -0.04em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .waitlist-form input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .waitlist-form input:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .waitlist-form button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            bottom: 5px;
+            width: 120px;
+            background-color: var(--color-button-bg);
+            color: var(--color-button-text);
+            border: none;
+            border-radius: 3px;
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: -0.04em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .waitlist-form button:hover {
+            background-color: #dcdcdc;
+        }
+
+        .site-footer {
+            border-top: 1px solid var(--color-input-border);
+            padding: 24px;
+            width: 100%;
+            font-size: 12px;
+        }
+
+        .site-footer ul {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            list-style: none;
+        }
+
+        .site-footer li {
+            color: var(--color-text-tertiary);
+        }
+
+        .site-footer li a {
+            color: var(--color-text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .site-footer li a:hover {
+            color: var(--color-text-secondary);
+        }
+
+        /* 4. Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+        
+        .badge, .main-heading, .subtitle, .waitlist-form {
+            opacity: 0; /* Start hidden */
+        }
+        
+        body.loaded .badge,
+        body.loaded .main-heading,
+        body.loaded .subtitle,
+        body.loaded .waitlist-form {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        body.loaded .main-heading { animation-delay: 0.15s; }
+        body.loaded .subtitle { animation-delay: 0.3s; }
+        body.loaded .waitlist-form { animation-delay: 0.45s; }
+
+        /* 5. Responsiveness */
+        @media (max-width: 810px) {
+            .main-heading {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-heading {
+                font-size: 40px;
+            }
+            .subtitle {
+                max-width: 100%;
+            }
+            .waitlist-form {
+                max-width: 100%;
+            }
+            .site-footer ul {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .site-footer .separator {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <main class="hero-section">
+        <div class="background-elements">
+            <div class="planet-glow"></div>
+            <div class="planet-body"></div> <!-- Add this new element -->
+            <div class="planet-horizon"></div>
+            <div class="top-gradient"></div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="badge">
+                <span>For real estate finance and investment professionals</span>
+            </div>
+
+            <h1 class="main-heading">Fix your 
+                <svg class="excel-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.067 0.009L0.227 1.496C0.095 1.522 0 1.638 0 1.776v12.448c0 0.138 0.095 0.254 0.227 0.280l7.840 1.487c0.018 0.003 0.035 0.009 0.053 0.009c0.064 0 0.123-0.020 0.172-0.054c0.064-0.054 0.108-0.135 0.108-0.223V0.277c0-0.083-0.039-0.165-0.108-0.219C8.230-0.006 8.140-0.019 8.067 0.009zM8.96 1.68v1.96h0.56v0.56h-0.56v1.4h0.56v0.56h-0.56v1.4h0.56v0.56h-0.56v1.68h0.56v0.56h-0.56v1.96h4.2c0.308 0 0.56-0.252 0.56-0.56V2.24c0-0.308-0.252-0.56-0.56-0.56H8.96zM10.08 3.64h2.24v0.56h-2.24v-0.56zM1.87 4.377l1.456 0 0.756 1.568c0.059 0.112 0.103 0.225 0.140 0.336h0.007c0.028-0.084 0.084-0.224 0.168-0.420l0.826-1.484h1.372l-1.596 2.618 1.596 2.625h-1.372l-0.896-1.820c-0.034-0.056-0.065-0.168-0.092-0.336h-0.007c-0.043 0.084-0.081 0.168-0.112 0.252l-0.889 1.904h-1.372l1.596-2.618L1.87 4.377zM10.08 5.6h2.24v0.56h-2.24V5.6zM10.08 7.56h2.24v0.56h-2.24v-0.56zM10.08 9.8h2.24v0.56h-2.24V9.8z" fill="#f0f0f0"/>
+                </svg>
+             Excel models <em>instantly</em></h1>
+            <p class="subtitle">
+                94% of spreadsheets have errors. Turn hours-long reviews and audits into a single command.
+            </p>
+
+            <form class="waitlist-form" action="https://api.web3forms.com/submit" method="POST" id="waitlistForm">
+                <input type="hidden" name="access_key" value="75aa6943-f1d6-42a1-8124-51ced4816f93">
+                <input type="hidden" name="subject" value="New Waitlist Signup - Instasheet">
+                <input type="hidden" name="from_name" value="Instasheet Landing">
+                <input type="checkbox" name="botcheck" style="display: none;">
+                <input type="email" name="email" placeholder="Your Email Address" required>
+                <button type="submit">Learn More</button>
+            </form>
+            <div id="form-result" style="display: none; margin-top: 12px; font-size: 14px; text-align: center;"></div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <nav>
+            <ul>
+                <li><a href="https://calendly.com/introductorymeetings/calls" rel="noopener">Let's connect</a></li>
+                <li class="separator" aria-hidden="true">•</li>
+                <li><a href="https://www.linkedin.com/in/mhvenkat/" rel="noopener">LinkedIn</a></li>
+            </ul>
+        </nav>
+    </footer>
+
+    <script>
+        // Add a class to the body when the page is loaded to trigger CSS animations
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('loaded');
+        });
+
+        // Handle form submission
+        const form = document.getElementById('waitlistForm');
+        const result = document.getElementById('form-result');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+            
+            result.style.display = 'block';
+            result.innerHTML = "Submitting...";
+            result.style.color = 'var(--color-text-secondary)';
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            })
+            .then(async (response) => {
+                let json = await response.json();
+                if (response.status == 200) {
+                    result.innerHTML = "Thank you! We'll be in touch soon.";
+                    result.style.color = '#43A294';
+                    form.reset();
+                } else {
+                    console.log(response);
+                    result.innerHTML = json.message || "Something went wrong. Please try again.";
+                    result.style.color = '#ff6b6b';
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                result.innerHTML = "Network error. Please check your connection and try again.";
+                result.style.color = '#ff6b6b';
+            })
+            .then(function() {
+                setTimeout(() => {
+                    result.style.display = 'none';
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
